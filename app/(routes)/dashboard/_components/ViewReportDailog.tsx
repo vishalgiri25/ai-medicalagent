@@ -11,7 +11,9 @@ import { Button } from '@/components/ui/button'
 import { sessionDetail } from '../medical-agent/[sessionId]/page'
 import moment from 'moment'
 import Image from 'next/image'
-import { IconCalendar, IconUser, IconFileText } from '@tabler/icons-react'
+import { IconCalendar, IconUser, IconFileText, IconDownload } from '@tabler/icons-react'
+import { generatePDFReport } from '@/lib/pdfGenerator'
+import { toast } from 'sonner'
 
 type props = {
     record: sessionDetail
@@ -19,6 +21,16 @@ type props = {
 
 function ViewReportDailog({ record }: props) {
   const reportData = record.report as any;
+
+  const handleDownloadPDF = () => {
+    try {
+      generatePDFReport(record);
+      toast.success('PDF report downloaded successfully!');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('Failed to generate PDF report');
+    }
+  };
 
   return (
     <Dialog>
@@ -148,6 +160,18 @@ function ViewReportDailog({ record }: props) {
                 <strong className='font-semibold'>⚠️ Medical Disclaimer:</strong> This is an AI-generated report for informational purposes only. 
                 Always consult with a qualified healthcare professional for medical advice, diagnosis, and treatment.
               </p>
+            </div>
+
+            {/* Download PDF Button */}
+            <div className='flex justify-center pt-2'>
+              <Button 
+                onClick={handleDownloadPDF}
+                className='gap-2 rounded-xl'
+                size='lg'
+              >
+                <IconDownload size={20} />
+                Download PDF Report
+              </Button>
             </div>
           </div>
         </DialogDescription>

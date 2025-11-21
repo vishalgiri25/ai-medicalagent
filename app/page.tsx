@@ -198,20 +198,30 @@ const Navbar = () => {
           />
           <h1 className="text-xl font-bold">EchoDoc AI</h1>
         </Link>
-        {!user ? (
-          <Link href={"/sign-in"}>
-            <Button>
-              Sign In
-            </Button>
+        
+        <div className="flex items-center gap-6">
+          <Link href="/" className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:block">
+            Home
           </Link>
-        ) : (
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard">
-              <Button variant="ghost">Dashboard</Button>
+          <Link href="/pricing" className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:block">
+            Pricing
+          </Link>
+          
+          {!user ? (
+            <Link href={"/sign-in"}>
+              <Button>
+                Sign In
+              </Button>
             </Link>
-            <UserButton afterSignOutUrl="/" />
-          </div>
-        )}
+          ) : (
+            <div className="flex items-center gap-3">
+              <Link href="/dashboard">
+                <Button variant="ghost">Dashboard</Button>
+              </Link>
+              <UserButton afterSignOutUrl="/" />
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );
