@@ -1,4 +1,3 @@
-import SuggestedDoctorCard from "@/app/(routes)/dashboard/_components/SuggestedDoctorCard";
 import { integer, json, pgTable, text, varchar } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {

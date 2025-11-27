@@ -16,6 +16,8 @@ export default function HistoryPage() {
   const [historyList, setHistoryList] = useState<sessionDetail[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     GetHistoryList();
@@ -118,53 +120,104 @@ export default function HistoryPage() {
             </Button>
           </motion.div>
         ) : (
-          <div className="space-y-4">
-            {historyList.map((record, index) => (
-              <motion.div
-                key={record.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 + index * 0.05 }}
-                className="group overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg"
-              >
-                <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
-                  {/* Doctor Image */}
-                  <div className="relative">
-                    <Image
-                      src={record.selectedDoctor.image}
-                      alt={record.selectedDoctor.specialist}
-                      width={80}
-                      height={80}
-                      className="rounded-2xl border-2 border-primary/20 object-cover shadow-md"
-                    />
-                  </div>
-
-                  {/* Details */}
-                  <div className="flex-1">
-                    <h3 className="mb-1 text-xl font-bold">{record.selectedDoctor.specialist}</h3>
-                    <p className="mb-2 line-clamp-2 text-sm text-muted-foreground">
-                      {record.notes || 'No description provided'}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <IconCalendar size={14} />
-                        {moment(new Date(record.createdOn)).format('MMM DD, YYYY')}
+          <>
+            <div className="space-y-4" style={{ minHeight: '800px' }}>
+              {historyList
+                .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                .map((record, index) => (
+                  <motion.div
+                    key={record.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 + index * 0.05 }}
+                    className="group overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg"
+                  >
+                    <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
+                      {/* Doctor Image */}
+                      <div className="relative">
+                        <Image
+                          src={record.selectedDoctor.image}
+                          alt={record.selectedDoctor.specialist}
+                          width={80}
+                          height={80}
+                          className="rounded-2xl border-2 border-primary/20 object-cover shadow-md"
+                        />
                       </div>
-                      <div className="flex items-center gap-1">
-                        <IconFileText size={14} />
-                        Medical Report Available
+
+                      {/* Details */}
+                      <div className="flex-1">
+                        <h3 className="mb-1 text-xl font-bold">{record.selectedDoctor.specialist}</h3>
+                        <p className="mb-2 line-clamp-2 text-sm text-muted-foreground">
+                          {record.notes || 'No description provided'}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <IconCalendar size={14} />
+                            {moment(new Date(record.createdOn)).format('MMM DD, YYYY')}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <IconFileText size={14} />
+                            Medical Report Available
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Button */}
+                      <div className="sm:ml-auto">
+                        <ViewReportDailog record={record} />
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
+                ))}
+            </div>
 
-                  {/* Action Button */}
-                  <div className="sm:ml-auto">
-                    <ViewReportDailog record={record} />
-                  </div>
+            {/* Pagination */}
+            {historyList.length > itemsPerPage && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="mt-8 flex flex-col items-center gap-4"
+              >
+                <p className="text-sm text-muted-foreground">
+                  Previous Consultation reports.
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="gap-1"
+                  >
+                    Previous
+                  </Button>
+                  
+                  {Array.from({ length: Math.ceil(historyList.length / itemsPerPage) }, (_, i) => i + 1).map((page) => (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(page)}
+                      className="min-w-[40px]"
+                    >
+                      {page}
+                    </Button>
+                  ))}
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.min(Math.ceil(historyList.length / itemsPerPage), prev + 1))}
+                    disabled={currentPage === Math.ceil(historyList.length / itemsPerPage)}
+                    className="gap-1"
+                  >
+                    Next
+                  </Button>
                 </div>
               </motion.div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </div>

@@ -1,10 +1,8 @@
-import { AIDoctorAgents } from "@/shared/list";
 import { NextRequest, NextResponse } from "next/server";
 import { openai } from "@/config/OpenAiModel";
 import { SessionChatTable } from "@/config/schema";
 import { db } from "@/config/db";
 import { eq } from "drizzle-orm";
-import { useState } from "react";
 
 
 const REPORT_GEN_PROMPT=`You are an AI Medical Voice Agent that just finished a voice conversation with a user. Based on doctor AI agent info and Conversation between AI medical agent and user, generate a structured report with the following fields:

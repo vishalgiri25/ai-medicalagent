@@ -35,11 +35,11 @@ export default function ProfilePage() {
   const fetchUserData = async () => {
     try {
       setLoading(true);
-      const result = await axios.get('/api/users?email=' + user?.primaryEmailAddress?.emailAddress);
+      const result = await axios.get('/api/users');
       setUserData(result.data);
       
       // Fetch consultation stats
-      const historyResult = await axios.get('/api/session-chat');
+      const historyResult = await axios.get('/api/session-chat?sessionId=all');
       setStats({
         consultations: historyResult.data?.length || 0,
         credits: result.data?.credits || 0

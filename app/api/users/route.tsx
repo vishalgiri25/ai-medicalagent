@@ -37,3 +37,35 @@ export async function POST(req: NextRequest) {
         );
     }
 }
+
+export async function GET(req: NextRequest) {
+    const user = await currentUser();
+
+    if (!user?.primaryEmailAddress?.emailAddress) {
+        return NextResponse.json(
+            { error: 'User email not found' },
+            { status: 401 }
+        );
+    }
+
+    try {
+        const userEmail = user.primaryEmailAddress.emailAddress;
+        const users = await db.select().from(usersTable)
+            .where(eq(usersTable.email, userEmail));
+    
+        if (users?.length === 0) {
+            return NextResponse.json(
+                { error: 'User not found' },
+                { status: 404 }
+            );
+        }
+        return NextResponse.json(users[0]);
+    } catch (e) {
+        console.error('Error in GET /api/users:', e);
+        const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+        return NextResponse.json(
+            { error: 'Failed to fetch user', details: errorMessage },
+            { status: 500 }
+        );
+    }
+}

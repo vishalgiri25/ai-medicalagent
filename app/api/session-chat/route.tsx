@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
   try {
     const userEmail = user.primaryEmailAddress.emailAddress;
 
-    if (sessionId === 'all') {
+    if (sessionId === 'all' || !sessionId) {
       const result = await db.select().from(SessionChatTable)
         .where(eq(SessionChatTable.createdBy, userEmail))
         .orderBy(desc(SessionChatTable.id));
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(result);
     } else {
       const result = await db.select().from(SessionChatTable)
-        .where(eq(SessionChatTable.sessionId, sessionId || ''));
+        .where(eq(SessionChatTable.sessionId, sessionId));
 
       return NextResponse.json(result[0] || null);
     }
