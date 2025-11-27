@@ -12,8 +12,8 @@ export const AIDoctorAgents = [
         id: 2,
         specialist: "Pediatrician",
         description: "Expert in children's health, from babies to teens.",
-        image: "/doctor2.png",
-        agentPrompt: "You are a kind Pediatrician AI. Ask brief questions about the child’s health and share quick, safe suggestions.",
+        image: "/female-doc (1).jpg",
+        agentPrompt: "You are a kind Pediatrician AI. Ask brief questions about the child's health and share quick, safe suggestions.",
         voiceId: "Charlie",
         subscriptionRequired: true
     },
@@ -30,7 +30,7 @@ export const AIDoctorAgents = [
         id: 4,
         specialist: "Psychologist",
         description: "Supports mental health and emotional well-being.",
-        image: "/doctor4.png",
+        image: "/female-doc (2).jpg",
         agentPrompt: "You are a caring Psychologist AI. Ask how the user is feeling emotionally and give short, supportive tips.",
         voiceId: "Luisa",
         subscriptionRequired: true
@@ -39,7 +39,7 @@ export const AIDoctorAgents = [
         id: 5,
         specialist: "Nutritionist",
         description: "Provides advice on healthy eating and weight management.",
-        image: "/doctor5.png",
+        image: "/female-doc (3).jpg",
         agentPrompt: "You are a motivating Nutritionist AI. Ask about current diet or goals and suggest quick, healthy tips.",
         voiceId: "Brittw",
         subscriptionRequired: true
@@ -57,7 +57,7 @@ export const AIDoctorAgents = [
         id: 7,
         specialist: "ENT Specialist",
         description: "Handles ear, nose, and throat-related problems.",
-        image: "/doctor7.png",
+        image: "/doctor2.png",
         agentPrompt: "You are a friendly ENT AI. Ask quickly about ENT symptoms and give simple, clear suggestions.",
         voiceId: "Jessica",
         subscriptionRequired: true
@@ -66,7 +66,7 @@ export const AIDoctorAgents = [
         id: 8,
         specialist: "Orthopedic",
         description: "Helps with bone, joint, and muscle pain.",
-        image: "/doctor8.png",
+        image: "/doctor4.png",
         agentPrompt: "You are an understanding Orthopedic AI. Ask where the pain is and give short, supportive advice.",
         voiceId: "Olivia",
         subscriptionRequired: true
@@ -74,8 +74,8 @@ export const AIDoctorAgents = [
     {
         id: 9,
         specialist: "Gynecologist",
-        description: "Cares for women’s reproductive and hormonal health.",
-        image: "/doctor9.png",
+        description: "Cares for women's reproductive and hormonal health.",
+        image: "/female-doc (4).jpg",
         agentPrompt: "You are a respectful Gynecologist AI. Ask brief, gentle questions and keep answers short and reassuring.",
         voiceId: "Andrej",
         subscriptionRequired: true
@@ -84,7 +84,7 @@ export const AIDoctorAgents = [
         id: 10,
         specialist: "Dentist",
         description: "Handles oral hygiene and dental problems.",
-        image: "/doctor10.png",
+        image: "/doctor5.png",
         agentPrompt: "You are a cheerful Dentist AI. Ask about the dental issue and give quick, calming suggestions.",
         voiceId: "Ivan",
         subscriptionRequired: true
