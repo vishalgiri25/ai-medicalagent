@@ -30,7 +30,7 @@ function HistoryTable({ historyList }: Props) {
 
     return (
         <div className='space-y-6'>
-            <div className='overflow-hidden rounded-2xl border' style={{ minHeight: '500px' }}>
+            <div className='overflow-hidden rounded-2xl border'>
                 <Table>
                     <TableHeader>
                         <TableRow className='bg-muted/50 hover:bg-muted/50'>
@@ -45,13 +45,15 @@ function HistoryTable({ historyList }: Props) {
                             <TableRow key={record.id || index} className='transition-colors hover:bg-muted/30'>
                                 <TableCell className="font-medium">
                                     <div className='flex items-center gap-3'>
-                                        <Image 
-                                            src={record.selectedDoctor.image}
-                                            alt={record.selectedDoctor.specialist}
-                                            width={40}
-                                            height={40}
-                                            className='rounded-full object-cover'
-                                        />
+                                        <div className='h-10 w-10 flex-shrink-0 overflow-hidden rounded-full'>
+                                            <Image 
+                                                src={record.selectedDoctor.image}
+                                                alt={record.selectedDoctor.specialist}
+                                                width={40}
+                                                height={40}
+                                                className='h-full w-full object-cover'
+                                            />
+                                        </div>
                                         <span>{record.selectedDoctor.specialist}</span>
                                     </div>
                                 </TableCell>

@@ -121,7 +121,7 @@ export default function HistoryPage() {
           </motion.div>
         ) : (
           <>
-            <div className="space-y-4" style={{ minHeight: '800px' }}>
+            <div className="space-y-4">
               {historyList
                 .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                 .map((record, index) => (

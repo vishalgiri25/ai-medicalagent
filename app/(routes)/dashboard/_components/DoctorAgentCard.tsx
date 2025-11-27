@@ -1,9 +1,12 @@
-import React from 'react'
+'use client'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { IconArrowRight, IconLock, IconStethoscope } from '@tabler/icons-react'
 import { toast } from 'sonner'
 import { motion } from 'motion/react'
+import { useRouter } from 'next/navigation'
+import axios from 'axios'
 
 export type doctorAgent = {
     id: number;
@@ -20,9 +23,33 @@ type props = {
 }
 
 function DoctorAgentCard({ doctorAgent }: props) {
-  const handleClick = () => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const handleClick = async () => {
     if (doctorAgent.subscriptionRequired) {
       toast.info('This specialist requires a premium subscription');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // Create a new session directly
+      const result = await axios.post('/api/session-chat', {
+        notes: `Consultation with ${doctorAgent.specialist}`,
+        selectedDoctor: doctorAgent
+      });
+
+      if (result.data) {
+        toast.success('Starting consultation...');
+        router.push(`/dashboard/medical-agent/${result.data.sessionId}`);
+      }
+    } catch (error) {
+      console.error('Error starting consultation:', error);
+      toast.error('Failed to start consultation. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,7 +99,7 @@ function DoctorAgentCard({ doctorAgent }: props) {
           className='w-full' 
           variant={doctorAgent.subscriptionRequired ? 'outline' : 'default'}
           onClick={handleClick}
-          disabled={doctorAgent.subscriptionRequired}
+          disabled={doctorAgent.subscriptionRequired || loading}
           size="sm"
         >
           {doctorAgent.subscriptionRequired ? (
@@ -82,7 +109,7 @@ function DoctorAgentCard({ doctorAgent }: props) {
             </>
           ) : (
             <>
-              Consult Now
+              {loading ? 'Starting...' : 'Consult Now'}
               <IconArrowRight className='ml-2' size={16} />
             </>
           )}
