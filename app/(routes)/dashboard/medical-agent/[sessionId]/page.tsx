@@ -36,6 +36,7 @@ function MedicalVoiceAgent() {
   const [error, setError] = useState<string | null>(null);
   const [duration, setDuration] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -213,6 +214,10 @@ function MedicalVoiceAgent() {
     return `${h}:${m}:${s}`;
   };
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, liveTranscript]);
+
   if (loading && !sessionDetail) {
     return (
       <div className='flex min-h-[600px] items-center justify-center rounded-3xl border bg-card'>
@@ -241,20 +246,20 @@ function MedicalVoiceAgent() {
   }
 
   return (
-    <div className='mx-auto max-w-6xl space-y-6 pb-8'>
+    <div className='mx-auto flex h-[calc(100vh-120px)] max-w-6xl flex-col gap-4 pb-4'>
       {sessionDetail && 
         <>
-          {/* Top Section - Doctor, Status, Duration in one row */}
-          <div className='flex flex-col items-center justify-between gap-6 rounded-2xl bg-gradient-to-br from-card to-muted/20 p-6 md:flex-row md:p-8'>
+          {/* Top Section - Doctor, Status, Duration in one row - FIXED */}
+          <div className='flex flex-shrink-0 flex-col items-center justify-between gap-4 rounded-2xl bg-gradient-to-br from-card to-muted/20 p-4 md:flex-row md:p-6'>
             {/* Doctor Profile */}
             <div className='flex items-center gap-4'>
               <div className='relative'>
                 <Image 
                   src={sessionDetail.selectedDoctor.image} 
                   alt={sessionDetail.selectedDoctor.specialist} 
-                  width={80} 
-                  height={80} 
-                  className='h-20 w-20 rounded-full border-4 border-primary/20 object-cover shadow-lg'
+                  width={64} 
+                  height={64} 
+                  className='h-16 w-16 rounded-full border-4 border-primary/20 object-cover shadow-lg'
                 />
                 {callStarted && (
                   <div className='absolute -bottom-1 -right-1 rounded-full bg-green-500 p-1.5 shadow-lg'>
@@ -263,16 +268,16 @@ function MedicalVoiceAgent() {
                 )}
               </div>
               <div>
-                <h2 className='text-xl font-bold'>{sessionDetail.selectedDoctor.specialist}</h2>
-                <p className='text-sm text-muted-foreground'>AI Medical Voice Agent</p>
+                <h2 className='text-lg font-bold'>{sessionDetail.selectedDoctor.specialist}</h2>
+                <p className='text-xs text-muted-foreground'>AI Medical Voice Agent</p>
               </div>
             </div>
 
             {/* Status and Duration */}
-            <div className='flex items-center gap-6'>
-              <div className='flex items-center gap-3'>
+            <div className='flex items-center gap-4'>
+              <div className='flex items-center gap-2'>
                 <div className={`rounded-full p-2 ${callStarted ? 'bg-green-500/10' : 'bg-muted'}`}>
-                  <Circle className={`h-4 w-4 ${callStarted ? 'fill-green-500 text-green-500 animate-pulse' : 'fill-muted-foreground text-muted-foreground'}`} />
+                  <Circle className={`h-3 w-3 ${callStarted ? 'fill-green-500 text-green-500 animate-pulse' : 'fill-muted-foreground text-muted-foreground'}`} />
                 </div>
                 <div>
                   <p className='text-xs text-muted-foreground'>Status</p>
@@ -284,7 +289,7 @@ function MedicalVoiceAgent() {
               
               <div className='rounded-xl bg-muted/50 px-4 py-2'>
                 <p className='text-xs text-muted-foreground'>Duration</p>
-                <p className='text-lg font-bold tabular-nums'>
+                <p className='text-base font-bold tabular-nums'>
                   {formatTime(duration)}
                 </p>
               </div>
@@ -309,17 +314,17 @@ function MedicalVoiceAgent() {
                   disabled={loading}
                 >
                   {loading ? <Loader className='h-4 w-4 animate-spin'/> : <PhoneOff className='h-4 w-4' />} 
-                  End Call
+                  Disconnect
                 </Button>
               }
             </div>
           </div>
 
-          {/* Conversation Section - No scroll, expands naturally */}
-          <div className='rounded-2xl bg-gradient-to-br from-background to-muted/10 shadow-lg'>
-            <div className='bg-muted/30 px-6 py-4'>
+          {/* Conversation Section - FIXED HEIGHT WITH SCROLL */}
+          <div className='flex flex-1 flex-col overflow-hidden rounded-2xl bg-card shadow-lg border'>
+            <div className='flex-shrink-0 border-b bg-muted/30 px-6 py-3'>
               <div className='flex items-center justify-between'>
-                <h3 className='text-lg font-semibold'>Conversation</h3>
+                <h3 className='text-base font-semibold'>Conversation</h3>
                 {messages.length > 0 && (
                   <span className='rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary'>
                     {messages.length} messages
@@ -328,64 +333,58 @@ function MedicalVoiceAgent() {
               </div>
             </div>
             
-            <div 
-              ref={(el) => {
-                if (el && (messages.length > 0 || liveTranscript)) {
-                  setTimeout(() => {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                  }, 100);
-                }
-              }}
-              className='space-y-4 p-6'
-            >
-              {messages.length === 0 && !liveTranscript && !callStarted && (
-                <div className='flex min-h-[300px] items-center justify-center'>
-                  <div className='text-center'>
-                    <PhoneCall className='mx-auto mb-3 h-12 w-12 text-muted-foreground/50' />
-                    <p className='text-muted-foreground'>
-                      Click "Start Call" to begin your consultation
-                    </p>
+            <div className='flex-1 overflow-y-auto px-6 py-4'>
+              <div className='space-y-4'>
+                {messages.length === 0 && !liveTranscript && !callStarted && (
+                  <div className='flex min-h-[400px] items-center justify-center'>
+                    <div className='text-center'>
+                      <PhoneCall className='mx-auto mb-3 h-12 w-12 text-muted-foreground/50' />
+                      <p className='text-muted-foreground'>
+                        Click "Start Call" to begin your consultation
+                      </p>
+                    </div>
                   </div>
-                </div>
-              )}
-              
-              {messages.map((msg, index) => (
-                <div 
-                  key={`msg-${index}`}
-                  className={`flex ${msg.role === 'assistant' ? 'justify-start' : 'justify-end'}`}
-                >
+                )}
+                
+                {messages.map((msg, index) => (
                   <div 
-                    className={`max-w-[85%] rounded-2xl p-4 shadow-sm ${
-                      msg.role === 'assistant' 
-                        ? 'bg-primary/10 text-foreground' 
-                        : 'bg-primary text-primary-foreground'
-                    }`}
+                    key={`msg-${index}`}
+                    className={`flex ${msg.role === 'assistant' ? 'justify-start' : 'justify-end'}`}
                   >
-                    <p className='mb-2 flex items-center gap-2 text-xs font-semibold opacity-80'>
-                      {msg.role === 'assistant' ? '👨‍⚕️ Doctor' : '👤 You'}
-                    </p>
-                    <p className='text-sm leading-relaxed'>{msg.text}</p>
+                    <div 
+                      className={`max-w-[75%] rounded-2xl p-4 shadow-sm ${
+                        msg.role === 'assistant' 
+                          ? 'bg-muted text-foreground' 
+                          : 'bg-primary text-primary-foreground'
+                      }`}
+                    >
+                      <p className='mb-1 text-xs font-medium opacity-70'>
+                        {msg.role === 'assistant' ? 'assistant' : 'user'}
+                      </p>
+                      <p className='text-sm leading-relaxed'>{msg.text}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-              
-              {liveTranscript && (
-                <div className={`flex ${currentRole === 'assistant' ? 'justify-start' : 'justify-end'}`}>
-                  <div 
-                    className={`max-w-[85%] animate-pulse rounded-2xl border-2 border-primary p-4 shadow-md ${
-                      currentRole === 'assistant' 
-                        ? 'bg-primary/10 text-foreground' 
-                        : 'bg-primary/20 text-foreground'
-                    }`}
-                  >
-                    <p className='mb-2 flex items-center gap-2 text-xs font-semibold text-primary'>
-                      {currentRole === 'assistant' ? '👨‍⚕️ Doctor' : '👤 You'}
-                      <span className='text-xs font-normal text-muted-foreground'>(speaking...)</span>
-                    </p>
-                    <p className='text-sm leading-relaxed'>{liveTranscript}</p>
+                ))}
+                
+                {liveTranscript && (
+                  <div className={`flex ${currentRole === 'assistant' ? 'justify-start' : 'justify-end'}`}>
+                    <div 
+                      className={`max-w-[75%] animate-pulse rounded-2xl p-4 shadow-md ${
+                        currentRole === 'assistant' 
+                          ? 'bg-muted/70 text-foreground border-2 border-primary/30' 
+                          : 'bg-primary/80 text-primary-foreground border-2 border-primary'
+                      }`}
+                    >
+                      <p className='mb-1 flex items-center gap-2 text-xs font-medium opacity-70'>
+                        {currentRole === 'assistant' ? 'assistant' : 'user'}
+                        <span className='text-xs'>(speaking...)</span>
+                      </p>
+                      <p className='text-sm leading-relaxed'>{liveTranscript}</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+                <div ref={messagesEndRef} />
+              </div>
             </div>
           </div>
         </>

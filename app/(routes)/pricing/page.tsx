@@ -33,7 +33,7 @@ const pricingPlans = [
   },
   {
     name: 'Premium',
-    price: '$29',
+    price: '₹999',
     period: 'per month',
     description: 'Best for regular health monitoring',
     priceId: 'price_premium_monthly',
@@ -91,30 +91,8 @@ export default function PricingPage() {
     }
 
     if (planName === 'Premium' && priceId) {
-      try {
-        setLoading(planName);
-        toast.loading('Creating checkout session...', { id: 'checkout' });
-
-        const response = await axios.post('/api/create-checkout', {
-          priceId,
-          planName,
-        });
-
-        if (response.data.demo) {
-          toast.success('Demo Mode: Simulating successful payment!', { id: 'checkout' });
-          setTimeout(() => {
-            router.push(response.data.url);
-          }, 1500);
-        } else if (response.data.url) {
-          toast.success('Redirecting to checkout...', { id: 'checkout' });
-          window.location.href = response.data.url;
-        }
-      } catch (error) {
-        console.error('Error creating checkout session:', error);
-        toast.error('Failed to create checkout session. Please try again.', { id: 'checkout' });
-      } finally {
-        setLoading(null);
-      }
+      // Redirect to UPI payment page
+      router.push('/payment');
     }
   };
 

@@ -4,10 +4,13 @@ import Image from "next/image";
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconHome, IconHistory, IconUserCircle, IconCurrencyDollar } from "@tabler/icons-react";
+import { IconHome, IconHistory, IconUserCircle, IconCurrencyDollar, IconMoon, IconSun } from "@tabler/icons-react";
+import { useTheme } from "next-themes";
+import { Button } from "@/components/ui/button";
 
 function AppHeader() {
     const pathname = usePathname();
+    const { theme, setTheme } = useTheme();
 
     const navItems = [
         { href: '/dashboard', label: 'Home', icon: IconHome },
@@ -42,6 +45,16 @@ function AppHeader() {
                             </Link>
                         );
                     })}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                        className="rounded-lg"
+                    >
+                        <IconSun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                        <IconMoon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                        <span className="sr-only">Toggle theme</span>
+                    </Button>
                     <UserButton afterSignOutUrl="/" />
                 </div>
             </div>

@@ -9,6 +9,8 @@ export type UserDetail = {
     name: string;
     email: string;
     credits: number;
+    isPremium: boolean;
+    premiumExpiresAt?: string;
 }
 
 function Provider({

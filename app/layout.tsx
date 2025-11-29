@@ -5,6 +5,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 import Provider from "@/provider";
 import { Toaster } from "sonner";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,16 +43,23 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           suppressHydrationWarning
         >
-          <ErrorBoundary>
-            <Provider>
-              {children}
-              <Toaster 
-                position="top-right"
-                richColors
-                closeButton
-              />
-            </Provider>
-          </ErrorBoundary>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ErrorBoundary>
+              <Provider>
+                {children}
+                <Toaster 
+                  position="top-right"
+                  richColors
+                  closeButton
+                />
+              </Provider>
+            </ErrorBoundary>
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
