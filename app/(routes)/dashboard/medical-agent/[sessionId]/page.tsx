@@ -113,10 +113,15 @@ function MedicalVoiceAgent() {
         return;
       }
 
+      if (!sessionDetail?.selectedDoctor?.assistantId) {
+        toast.error('Assistant ID not found for this specialist');
+        return;
+      }
+
       const vapi = new Vapi(process.env.NEXT_PUBLIC_VAPI_API_KEY);
       setVapiInstance(vapi);
 
-      vapi.start(process.env.NEXT_PUBLIC_VAPI_VOICE_ASSISTANT_ID);
+      vapi.start(sessionDetail.selectedDoctor.assistantId);
 
       vapi.on('call-start', () => {
         setCallStarted(true);
