@@ -1,5 +1,5 @@
 'use client';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, Suspense } from 'react';
 import HistoryList from './_components/HistoryList';
 import DoctorsAgentlist from './_components/DoctorsAgentlist';
 import AddNewSessionDialog from './_components/AddNewSessionDialog';
@@ -9,7 +9,7 @@ import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { UserDetailContext } from '@/context/UserDetailcontext';
 
-function Dashboard() {
+function DashboardContent() {
     const searchParams = useSearchParams();
     const { userDetail } = useContext(UserDetailContext);
 
@@ -69,6 +69,16 @@ function Dashboard() {
                 {/* AI Specialists */}
                 <DoctorsAgentlist />
             </div>
+        </ErrorBoundary>
+    )
+}
+
+function Dashboard() {
+    return (
+        <ErrorBoundary>
+            <Suspense fallback={<div>Loading...</div>}>
+                <DashboardContent />
+            </Suspense>
         </ErrorBoundary>
     )
 }
