@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { IconCheck, IconX, IconSparkles, IconRocket, IconCreditCard, IconLoader2 } from '@tabler/icons-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { UserDetailContext } from '@/context/UserDetailcontext';
 
 const pricingPlans = [
   {
@@ -77,10 +78,17 @@ const pricingPlans = [
 export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const router = useRouter();
+  const { userDetail } = useContext(UserDetailContext);
+  const isPremium = userDetail?.isPremium || false;
 
   const handleUpgrade = async (planName: string, priceId: string | null) => {
     if (planName === 'Free') {
       toast.info('You are already on the Free plan');
+      return;
+    }
+    
+    if (planName === 'Premium' && isPremium) {
+      toast.success('You are already a Premium member!');
       return;
     } 
     
@@ -171,27 +179,42 @@ export default function PricingPage() {
                   <p className="text-sm text-muted-foreground">{plan.description}</p>
                 </div>
 
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-bold">{plan.price}</span>
-                    <span className="text-muted-foreground">/{plan.period}</span>
-                  </div>
-                </div>
-
                 <Button
                   onClick={() => handleUpgrade(plan.name, plan.priceId)}
                   className={`mb-6 w-full rounded-xl ${
                     plan.highlighted ? '' : 'variant-outline'
                   }`}
-                  variant={plan.highlighted ? 'default' : 'outline'}
+                  variant={
+                    (plan.name === 'Free' && !isPremium) || (plan.name === 'Premium' && isPremium)
+                      ? 'secondary'
+                      : plan.highlighted
+                      ? 'default'
+                      : 'outline'
+                  }
                   size="lg"
-                  disabled={loading === plan.name}
+                  disabled={
+                    loading === plan.name ||
+                    (plan.name === 'Free' && !isPremium) ||
+                    (plan.name === 'Premium' && isPremium)
+                  }
                 >
                   {loading === plan.name ? (
                     <>
                       <IconLoader2 size={18} className="mr-2 animate-spin" />
                       Processing...
                     </>
+                  ) : (plan.name === 'Free' && !isPremium) || (plan.name === 'Premium' && isPremium) ? (
+                    <>
+                      <IconCheck size={18} className="mr-2" />
+                      Current Plan
+                    </>
+                  ) : (
+                    <>
+                      {plan.name === 'Premium' && <IconCreditCard size={18} className="mr-2" />}
+                      {plan.buttonText}
+                    </>
+                  )}
+                </Button>
                   ) : (
                     <>
                       {plan.name === 'Premium' && <IconCreditCard size={18} className="mr-2" />}

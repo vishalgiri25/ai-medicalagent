@@ -60,7 +60,8 @@ export default function ProfilePage() {
     );
   }
 
-  const isPremium = false; // TODO: Implement actual subscription check
+  const isPremium = userData?.isPremium || false;
+  const premiumExpiresAt = userData?.premiumExpiresAt ? moment(userData.premiumExpiresAt).format('MMMM DD, YYYY') : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
@@ -208,12 +209,14 @@ export default function ProfilePage() {
                       <IconSparkles className="text-primary" size={24} />
                       <div>
                         <p className="font-semibold">Premium Plan</p>
-                        <p className="text-sm text-muted-foreground">$29/month • Renews monthly</p>
+                        <p className="text-sm text-muted-foreground">
+                          ₹999/month {premiumExpiresAt && `• Expires ${premiumExpiresAt}`}
+                        </p>
                       </div>
                     </div>
-                    <Button variant="outline" className="w-full rounded-xl">
-                      Manage Subscription
-                    </Button>
+                    <div className="rounded-lg bg-green-500/10 px-4 py-2 text-sm text-green-600 dark:text-green-400">
+                      ✓ You have unlimited access to all specialists
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-4">
