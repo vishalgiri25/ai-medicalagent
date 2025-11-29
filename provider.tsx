@@ -11,6 +11,8 @@ export type UserDetail = {
     credits: number;
     isPremium: boolean;
     premiumExpiresAt?: string;
+    monthlyConsultations?: number;
+    consultationsResetDate?: string;
 }
 
 function Provider({

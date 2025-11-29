@@ -8,6 +8,8 @@ export const usersTable = pgTable("users", {
   isPremium: boolean().default(false),
   premiumExpiresAt: varchar(),
   isAdmin: boolean().default(false),
+  monthlyConsultations: integer().default(0),
+  consultationsResetDate: varchar(),
 });
 
 export const SessionChatTable=pgTable('sessionChatTable',{

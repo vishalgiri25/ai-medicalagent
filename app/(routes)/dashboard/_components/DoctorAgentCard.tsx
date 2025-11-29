@@ -50,9 +50,21 @@ function DoctorAgentCard({ doctorAgent }: props) {
         toast.success('Starting consultation...');
         router.push(`/dashboard/medical-agent/${result.data.sessionId}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error starting consultation:', error);
-      toast.error('Failed to start consultation. Please try again.');
+      
+      // Check if limit reached
+      if (error.response?.data?.error === 'LIMIT_REACHED') {
+        toast.error(error.response.data.message, {
+          duration: 5000,
+          action: {
+            label: 'Upgrade Now',
+            onClick: () => router.push('/pricing')
+          }
+        });
+      } else {
+        toast.error('Failed to start consultation. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
