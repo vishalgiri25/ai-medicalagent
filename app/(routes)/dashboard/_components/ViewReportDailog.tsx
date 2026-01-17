@@ -11,13 +11,29 @@ import { Button } from '@/components/ui/button'
 import { sessionDetail } from '../medical-agent/[sessionId]/page'
 import moment from 'moment'
 import Image from 'next/image'
-import { IconCalendar, IconUser, IconFileText, IconDownload } from '@tabler/icons-react'
+import { IconCalendar, IconUser, IconFileText, IconDownload, IconAlertCircle, IconCheck } from '@tabler/icons-react'
 import { generatePDFReport } from '@/lib/pdfGenerator'
 import { toast } from 'sonner'
 
 type props = {
     record: sessionDetail
 }
+
+const getRiskColor = (level: 'low' | 'moderate' | 'high') => {
+  switch (level) {
+    case 'low': return 'text-green-600 bg-green-50 border-green-200';
+    case 'moderate': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+    case 'high': return 'text-red-600 bg-red-50 border-red-200';
+  }
+};
+
+const getRiskIcon = (level: 'low' | 'moderate' | 'high') => {
+  switch (level) {
+    case 'low': return <IconCheck size={20} />;
+    case 'moderate': return <IconAlertCircle size={20} />;
+    case 'high': return <IconAlertCircle size={20} className="animate-pulse" />;
+  }
+};
 
 function ViewReportDailog({ record }: props) {
   const reportData = record.report as any;
@@ -51,6 +67,34 @@ function ViewReportDailog({ record }: props) {
         </div>
       )
     });
+    
+    // Risk Assessment - NEW
+    if (reportData?.riskLevel) {
+      arr.push({
+        key: 'riskAssessment',
+        title: 'Risk Assessment',
+        content: (
+          <div className={`rounded-xl border-2 p-6 ${getRiskColor(reportData.riskLevel)}`}>
+            <div className="flex items-start gap-3">
+              <div className="rounded-full p-2 bg-white/50">
+                {getRiskIcon(reportData.riskLevel)}
+              </div>
+              <div className="flex-1">
+                <h3 className="mb-2 text-lg font-bold capitalize flex items-center gap-2">
+                  Overall Risk Level: {reportData.riskLevel}
+                </h3>
+                {reportData.riskExplanation && (
+                  <p className="text-sm leading-relaxed opacity-90">
+                    {reportData.riskExplanation}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      });
+    }
+    
     arr.push({
       key: 'chiefComplaint',
       title: 'Chief Complaint',
@@ -68,6 +112,28 @@ function ViewReportDailog({ record }: props) {
         </div>
       )
     });
+    
+    // Doctor's Explanation - NEW
+    if (reportData?.doctorExplanation) {
+      arr.push({
+        key: 'doctorExplanation',
+        title: "Doctor's Explanation",
+        content: (
+          <div className='space-y-3'>
+            <h3 className='text-lg font-semibold text-foreground flex items-center gap-2'>
+              <IconUser size={20} className='text-primary' />
+              Doctor's Explanation
+            </h3>
+            <div className='rounded-xl border bg-blue-50/50 border-blue-200 p-4'>
+              <p className='text-sm leading-relaxed text-blue-900'>
+                {reportData.doctorExplanation}
+              </p>
+            </div>
+          </div>
+        )
+      });
+    }
+    
     if (reportData?.summary) {
       arr.push({
         key: 'summary',
@@ -161,6 +227,36 @@ function ViewReportDailog({ record }: props) {
         )
       })
     }
+    
+    // Warning Signs - NEW
+    if (reportData?.warningSignsToWatch && reportData.warningSignsToWatch.length > 0) {
+      arr.push({
+        key: 'warningSigns',
+        title: 'Warning Signs',
+        content: (
+          <div className='space-y-3'>
+            <h3 className='text-lg font-semibold text-red-700 flex items-center gap-2'>
+              <IconAlertCircle size={20} />
+              Warning Signs to Watch
+            </h3>
+            <div className='rounded-xl border-2 border-red-200 bg-red-50 p-4'>
+              <p className='text-sm font-medium text-red-600 mb-3'>
+                Seek immediate medical attention if you experience:
+              </p>
+              <div className='space-y-2'>
+                {reportData.warningSignsToWatch.map((sign: string, idx: number) => (
+                  <div key={idx} className='flex items-start gap-2'>
+                    <div className='mt-1.5 h-1.5 w-1.5 rounded-full bg-red-600' />
+                    <span className='text-sm text-red-700'>{sign}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+      })
+    }
+    
     // Disclaimer always last
     arr.push({
       key: 'disclaimer',

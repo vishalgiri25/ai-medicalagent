@@ -16,8 +16,12 @@ const REPORT_GEN_PROMPT=`You are an AI Medical Voice Agent that just finished a 
 7. symptoms: list of symptoms mentioned by the user
 8. duration: how long the user has experienced the symptoms
 9. severity: mild, moderate, or severe
-10. medicationsMentioned: list of any medicines mentioned
-11. recommendations: list of AI suggestions (e.g., rest, see a doctor)
+10. riskLevel: overall health risk assessment - "low" (green), "moderate" (yellow), or "high" (red)
+11. riskExplanation: doctor-style explanation of the risk level in 2-3 sentences (e.g., "Your symptoms suggest a mild viral infection. While uncomfortable, these typically resolve within 5-7 days with rest. However, if fever exceeds 101°F or symptoms worsen, immediate medical attention is advised.")
+12. medicationsMentioned: list of any medicines mentioned
+13. recommendations: list of AI suggestions (e.g., rest, see a doctor) with detailed doctor-style explanations
+14. doctorExplanation: comprehensive doctor-style explanation of the condition in plain language (3-4 sentences)
+15. warningSignsToWatch: list of symptoms that would require immediate medical attention
 Return the result in this JSON format:
 {
  "sessionId": "string",
@@ -29,8 +33,12 @@ Return the result in this JSON format:
  "symptoms": ["symptom1", "symptom2"],
  "duration": "string",
  "severity": "string",
+ "riskLevel": "low" | "moderate" | "high",
+ "riskExplanation": "string",
  "medicationsMentioned": ["med1", "med2"],
  "recommendations": ["rec1", "rec2"],
+ "doctorExplanation": "string",
+ "warningSignsToWatch": ["sign1", "sign2"]
 }
 
 Only include valid fields. Respond with nothing else.`

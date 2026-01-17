@@ -215,13 +215,6 @@ export default function PricingPage() {
                     </>
                   )}
                 </Button>
-                  ) : (
-                    <>
-                      {plan.name === 'Premium' && <IconCreditCard size={18} className="mr-2" />}
-                      {plan.buttonText}
-                    </>
-                  )}
-                </Button>
 
                 <div className="space-y-4">
                   <div className="space-y-3">

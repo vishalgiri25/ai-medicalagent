@@ -19,6 +19,7 @@ export const SessionChatTable=pgTable('sessionChatTable',{
   selectedDoctor:json(),
   conversation:json(),
   report:json(),
+  uploadedReports:json(), // Stores uploaded lab reports with AI analysis, risk levels
   createdBy:varchar().references(()=>usersTable.email),
   createdOn:varchar(),
 })

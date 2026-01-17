@@ -4,11 +4,14 @@ import axios from 'axios';
 import { useParams, useRouter } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
 import { doctorAgent } from '../../_components/DoctorAgentCard';
-import { Circle, Loader, PhoneCall, PhoneOff } from 'lucide-react';
+import { Circle, Loader, PhoneCall, PhoneOff, MessageSquare } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import UploadReportDialog from '../../_components/UploadReportDialog';
+import ViewLabReportsDialog from '../../_components/ViewLabReportsDialog';
+import { ChatBot } from '@/components/ChatBot';
 
 export type sessionDetail = {
   id: number;
@@ -38,12 +41,37 @@ function MedicalVoiceAgent() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [chatMode, setChatMode] = useState<'voice' | 'text'>('voice');
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
 
   useEffect(() => {
     if (sessionId) {
       GetSessionDetails();
     }
   }, [sessionId]);
+
+  useEffect(() => {
+    if (chatMode === 'text' && sessionDetail) {
+      loadConversationHistory();
+    }
+  }, [chatMode, sessionDetail]);
+
+  const loadConversationHistory = async () => {
+    try {
+      const response = await axios.get(`/api/chat-message?sessionId=${sessionId}`);
+      if (response.data.conversation) {
+        const formattedMessages = response.data.conversation.map((msg: any) => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: new Date(msg.timestamp),
+        }));
+        setChatMessages(formattedMessages);
+      }
+    } catch (error) {
+      console.error('Error loading conversation:', error);
+    }
+  };
 
   useEffect(() => {
     if (!vapiInstance) return;
@@ -280,94 +308,147 @@ function MedicalVoiceAgent() {
 
             {/* Status and Duration */}
             <div className='flex items-center gap-4'>
-              <div className='flex items-center gap-2'>
-                <div className={`rounded-full p-2 ${callStarted ? 'bg-green-500/10' : 'bg-muted'}`}>
-                  <Circle className={`h-3 w-3 ${callStarted ? 'fill-green-500 text-green-500 animate-pulse' : 'fill-muted-foreground text-muted-foreground'}`} />
-                </div>
-                <div>
-                  <p className='text-xs text-muted-foreground'>Status</p>
-                  <p className="text-sm font-semibold">
-                    {callStarted ? 'Connected' : 'Ready'}
-                  </p>
-                </div>
-              </div>
-              
-              <div className='rounded-xl bg-muted/50 px-4 py-2'>
-                <p className='text-xs text-muted-foreground'>Duration</p>
-                <p className='text-base font-bold tabular-nums'>
-                  {formatTime(duration)}
-                </p>
+              {/* Mode Toggle */}
+              <div className='flex gap-1 rounded-lg bg-muted p-1'>
+                <Button
+                  size="sm"
+                  variant={chatMode === 'voice' ? 'default' : 'ghost'}
+                  className='gap-2'
+                  onClick={() => setChatMode('voice')}
+                  disabled={callStarted}
+                >
+                  <PhoneCall className='h-4 w-4' />
+                  Voice
+                </Button>
+                <Button
+                  size="sm"
+                  variant={chatMode === 'text' ? 'default' : 'ghost'}
+                  className='gap-2'
+                  onClick={() => setChatMode('text')}
+                  disabled={callStarted}
+                >
+                  <MessageSquare className='h-4 w-4' />
+                  Chat
+                </Button>
               </div>
 
-              {/* Call Button */}
-              {!callStarted ? 
-                <Button 
-                  size="lg"
-                  className='gap-2' 
-                  onClick={StartCall} 
-                  disabled={loading}
-                > 
-                  <PhoneCall className='h-4 w-4' />  
-                  Start Call
-                </Button>
-              :
-                <Button 
-                  size="lg"
-                  variant='destructive' 
-                  className='gap-2'
-                  onClick={endCall} 
-                  disabled={loading}
-                >
-                  {loading ? <Loader className='h-4 w-4 animate-spin'/> : <PhoneOff className='h-4 w-4' />} 
-                  Disconnect
-                </Button>
-              }
+              {chatMode === 'voice' && (
+                <>
+                  <div className='flex items-center gap-2'>
+                    <div className={`rounded-full p-2 ${callStarted ? 'bg-green-500/10' : 'bg-muted'}`}>
+                      <Circle className={`h-3 w-3 ${callStarted ? 'fill-green-500 text-green-500 animate-pulse' : 'fill-muted-foreground text-muted-foreground'}`} />
+                    </div>
+                    <div>
+                      <p className='text-xs text-muted-foreground'>Status</p>
+                      <p className="text-sm font-semibold">
+                        {callStarted ? 'Connected' : 'Ready'}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className='rounded-xl bg-muted/50 px-4 py-2'>
+                    <p className='text-xs text-muted-foreground'>Duration</p>
+                    <p className='text-base font-bold tabular-nums'>
+                      {formatTime(duration)}
+                    </p>
+                  </div>
+                </>
+              )}
+
+              {/* Lab Reports Actions */}
+              <div className='flex gap-2'>
+                <UploadReportDialog 
+                  sessionId={sessionId as string} 
+                  onUploadSuccess={() => setRefreshTrigger(prev => prev + 1)}
+                />
+                <ViewLabReportsDialog 
+                  sessionId={sessionId as string}
+                  triggerRefresh={refreshTrigger}
+                />
+              </div>
+
+              {/* Call Button - Only show in voice mode */}
+              {chatMode === 'voice' && (
+                <>
+                  {!callStarted ? 
+                    <Button 
+                      size="lg"
+                      className='gap-2' 
+                      onClick={StartCall} 
+                      disabled={loading}
+                    > 
+                      <PhoneCall className='h-4 w-4' />  
+                      Start Call
+                    </Button>
+                  :
+                    <Button 
+                      size="lg"
+                      variant='destructive' 
+                      className='gap-2'
+                      onClick={endCall} 
+                      disabled={loading}
+                    >
+                      {loading ? <Loader className='h-4 w-4 animate-spin'/> : <PhoneOff className='h-4 w-4' />} 
+                      Disconnect
+                    </Button>
+                  }
+                </>
+              )}
             </div>
           </div>
 
           {/* Conversation Section - FIXED HEIGHT WITH SCROLL */}
           <div className='flex flex-1 flex-col overflow-hidden rounded-2xl bg-card shadow-lg border'>
-            <div className='flex-shrink-0 border-b bg-muted/30 px-6 py-3'>
-              <div className='flex items-center justify-between'>
-                <h3 className='text-base font-semibold'>Conversation</h3>
-                {messages.length > 0 && (
-                  <span className='rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary'>
-                    {messages.length} messages
-                  </span>
-                )}
-              </div>
-            </div>
-            
-            <div className='flex-1 overflow-y-auto px-6 py-4'>
-              <div className='space-y-4'>
-                {messages.length === 0 && !liveTranscript && !callStarted && (
-                  <div className='flex min-h-[400px] items-center justify-center'>
-                    <div className='text-center'>
-                      <PhoneCall className='mx-auto mb-3 h-12 w-12 text-muted-foreground/50' />
-                      <p className='text-muted-foreground'>
-                        Click "Start Call" to begin your consultation
-                      </p>
-                    </div>
+            {chatMode === 'text' ? (
+              <ChatBot
+                sessionId={sessionId as string}
+                doctorName={sessionDetail.selectedDoctor.specialist}
+                initialMessages={chatMessages}
+                onMessagesUpdate={(msgs) => setChatMessages(msgs)}
+              />
+            ) : (
+              <>
+                <div className='flex-shrink-0 border-b bg-muted/30 px-6 py-3'>
+                  <div className='flex items-center justify-between'>
+                    <h3 className='text-base font-semibold'>Conversation</h3>
+                    {messages.length > 0 && (
+                      <span className='rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary'>
+                        {messages.length} messages
+                      </span>
+                    )}
                   </div>
-                )}
+                </div>
                 
-                {messages.map((msg, index) => (
-                  <div 
-                    key={`msg-${index}`}
-                    className={`flex ${msg.role === 'assistant' ? 'justify-start' : 'justify-end'}`}
-                  >
-                    <div 
-                      className={`max-w-[75%] rounded-2xl p-4 shadow-sm ${
-                        msg.role === 'assistant' 
-                          ? 'bg-muted text-foreground' 
-                          : 'bg-primary text-primary-foreground'
-                      }`}
-                    >
-                      <p className='mb-1 text-xs font-medium opacity-70'>
-                        {msg.role === 'assistant' ? 'assistant' : 'user'}
-                      </p>
-                      <p className='text-sm leading-relaxed'>{msg.text}</p>
-                    </div>
+                <div className='flex-1 overflow-y-auto px-6 py-4'>
+                  <div className='space-y-4'>
+                    {messages.length === 0 && !liveTranscript && !callStarted && (
+                      <div className='flex min-h-[400px] items-center justify-center'>
+                        <div className='text-center'>
+                          <PhoneCall className='mx-auto mb-3 h-12 w-12 text-muted-foreground/50' />
+                          <p className='text-muted-foreground'>
+                            Click "Start Call" to begin your consultation
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {messages.map((msg, index) => (
+                      <div 
+                        key={`msg-${index}`}
+                        className={`flex ${msg.role === 'assistant' ? 'justify-start' : 'justify-end'}`}
+                      >
+                        <div 
+                          className={`max-w-[75%] rounded-2xl p-4 shadow-sm ${
+                            msg.role === 'assistant' 
+                              ? 'bg-muted text-foreground' 
+                              : 'bg-primary text-primary-foreground'
+                          }`}
+                        >
+                          <p className='mb-1 text-xs font-medium opacity-70'>
+                            {msg.role === 'assistant' ? 'assistant' : 'user'}
+                          </p>
+                          <p className='text-sm leading-relaxed'>{msg.text}</p>
+                        </div>
                   </div>
                 ))}
                 
@@ -391,6 +472,8 @@ function MedicalVoiceAgent() {
                 <div ref={messagesEndRef} />
               </div>
             </div>
+            </>
+            )}
           </div>
         </>
       }

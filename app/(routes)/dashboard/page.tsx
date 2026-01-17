@@ -3,8 +3,11 @@ import React, { useContext, useEffect, Suspense } from 'react';
 import HistoryList from './_components/HistoryList';
 import DoctorsAgentlist from './_components/DoctorsAgentlist';
 import AddNewSessionDialog from './_components/AddNewSessionDialog';
+import HealthTrendsDialog from './_components/HealthTrendsDialog';
+import UploadReportDialog from './_components/UploadReportDialog';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { IconSparkles, IconStethoscope, IconCrown } from '@tabler/icons-react';
+import { FloatingChatBot } from '@/components/FloatingChatBot';
+import { IconSparkles, IconStethoscope, IconCrown, IconMessageCircle } from '@tabler/icons-react';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { UserDetailContext } from '@/context/UserDetailcontext';
@@ -12,6 +15,7 @@ import { UserDetailContext } from '@/context/UserDetailcontext';
 function DashboardContent() {
     const searchParams = useSearchParams();
     const { userDetail } = useContext(UserDetailContext);
+    const [showChat, setShowChat] = React.useState(false);
 
     useEffect(() => {
         const payment = searchParams.get('payment');
@@ -59,7 +63,53 @@ function DashboardContent() {
                                 }
                             </p>
                         </div>
-                        <AddNewSessionDialog />
+                        <div className='flex flex-col sm:flex-row gap-3 items-stretch sm:items-center'>
+                            <UploadReportDialog sessionId="dashboard" onUploadSuccess={() => window.location.reload()} />
+                            <HealthTrendsDialog />
+                            <AddNewSessionDialog />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Quick Actions Section */}
+                <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4'>
+                    <div className='rounded-2xl border bg-gradient-to-br from-blue-500/10 to-blue-600/5 p-6 hover:shadow-lg transition-shadow cursor-pointer'>
+                        <div className='mb-3 inline-flex rounded-full bg-blue-500/20 p-3'>
+                            <IconSparkles className='text-blue-600' size={24} />
+                        </div>
+                        <h3 className='mb-2 text-lg font-semibold'>Upload Lab Report</h3>
+                        <p className='text-sm text-muted-foreground'>Upload your medical reports for AI analysis with risk assessment</p>
+                    </div>
+                    
+                    <div className='rounded-2xl border bg-gradient-to-br from-purple-500/10 to-purple-600/5 p-6 hover:shadow-lg transition-shadow cursor-pointer'>
+                        <div className='mb-3 inline-flex rounded-full bg-purple-500/20 p-3'>
+                            <IconStethoscope className='text-purple-600' size={24} />
+                        </div>
+                        <h3 className='mb-2 text-lg font-semibold'>Voice Consultation</h3>
+                        <p className='text-sm text-muted-foreground'>Start a voice consultation with AI medical specialists</p>
+                    </div>
+                    
+                    <div 
+                        onClick={() => setShowChat(true)}
+                        className='rounded-2xl border bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 p-6 hover:shadow-lg hover:border-emerald-500/50 transition-all cursor-pointer'
+                    >
+                        <div className='mb-3 inline-flex rounded-full bg-emerald-500/20 p-3'>
+                            <IconMessageCircle className='text-emerald-600' size={24} />
+                        </div>
+                        <h3 className='mb-2 text-lg font-semibold'>Text Chat</h3>
+                        <p className='text-sm text-muted-foreground'>Chat with AI doctors via text - get instant medical advice</p>
+                        <div className='mt-3 inline-flex items-center gap-1 text-xs font-medium text-emerald-600'>
+                            Click to start chatting
+                            <span className='text-lg'>→</span>
+                        </div>
+                    </div>
+                    
+                    <div className='rounded-2xl border bg-gradient-to-br from-green-500/10 to-green-600/5 p-6 hover:shadow-lg transition-shadow cursor-pointer'>
+                        <div className='mb-3 inline-flex rounded-full bg-green-500/20 p-3'>
+                            <IconSparkles className='text-green-600' size={24} />
+                        </div>
+                        <h3 className='mb-2 text-lg font-semibold'>Health Trends</h3>
+                        <p className='text-sm text-muted-foreground'>Track your health progress with visual trend analysis</p>
                     </div>
                 </div>
 
@@ -69,6 +119,9 @@ function DashboardContent() {
                 {/* AI Specialists */}
                 <DoctorsAgentlist />
             </div>
+            
+            {/* Floating Chat Bot - Pass showChat state */}
+            <FloatingChatBot initialOpen={showChat} onClose={() => setShowChat(false)} />
         </ErrorBoundary>
     )
 }
